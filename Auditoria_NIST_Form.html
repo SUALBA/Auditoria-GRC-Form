@@ -6,114 +6,253 @@
   <title>Formulario Auditoría NIST</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f5f5f5;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to right, #f0f2f5, #d9e2ec);
     }
     h1 {
       text-align: center;
-      color: #333;
+      color: #1f2937;
+      margin-bottom: 20px;
     }
-    form {
+    #audit-form {
       max-width: 900px;
       margin: auto;
       background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
-    label {
-      font-weight: bold;
+    .field-block {
+      margin-bottom: 20px;
+    }
+    .field-block label {
+      font-weight: 600;
       display: block;
-      margin-top: 15px;
+      margin-bottom: 5px;
     }
-    textarea, select, input[type="text"] {
+    input[type="text"], textarea, select {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
-      border-radius: 5px;
+      border-radius: 6px;
       border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .control-block {
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 10px;
+      background: #fdfdfd;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4f;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .remove-btn:hover {
+      background: #d9363e;
     }
     button {
-      margin-top: 20px;
       padding: 12px 20px;
       background-color: #007BFF;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      margin-right: 10px;
     }
     button:hover {
       background-color: #0056b3;
+    }
+    .button-group {
+      margin-top: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <h1>Formulario de Auditoría - NIST CSF (Ligero)</h1>
+  <h1>Formulario de Auditoría - NIST CSF</h1>
 
   <form id="audit-form">
-    <label for="empresa">Empresa auditada:</label>
-    <input type="text" id="empresa" name="empresa">
+    <div class="field-block">
+      <label for="empresa">Empresa auditada:</label>
+      <input type="text" id="empresa" name="empresa">
+    </div>
 
-    <label for="fecha">Fecha de auditoría:</label>
-    <input type="text" id="fecha" name="fecha">
+    <div class="field-block">
+      <label for="fecha">Fecha de auditoría:</label>
+      <input type="text" id="fecha" name="fecha">
+    </div>
 
-    <label for="control">Control (Ej: PR.AC-1 - Control de accesos):</label>
-    <input type="text" id="control" name="control">
+    <div class="field-block">
+      <label for="auditor">Nombre del auditor:</label>
+      <input type="text" id="auditor" name="auditor">
+    </div>
 
-    <label for="cumple">Cumple:</label>
-    <select id="cumple" name="cumple">
-      <option value="">-- Seleccionar --</option>
-      <option value="Sí">Sí</option>
-      <option value="No">No</option>
-      <option value="Parcial">Parcial</option>
-    </select>
+    <div class="field-block">
+      <label for="empresa_auditora">Empresa que realiza la auditoría:</label>
+      <input type="text" id="empresa_auditora" name="empresa_auditora">
+    </div>
 
-    <label for="evidencia">Evidencia encontrada:</label>
-    <textarea id="evidencia" name="evidencia" rows="4"></textarea>
+    <div class="field-block">
+      <label for="version">Versión del informe:</label>
+      <input type="text" id="version" name="version" placeholder="Ej: v1.0">
+    </div>
 
-    <label for="riesgo">Riesgo asociado:</label>
-    <select id="riesgo" name="riesgo">
-      <option value="">-- Seleccionar --</option>
-      <option value="Alto">Alto</option>
-      <option value="Medio">Medio</option>
-      <option value="Bajo">Bajo</option>
-    </select>
+    <div id="controls-container"></div>
 
-    <button type="button" onclick="descargarPDF()">Descargar como PDF</button>
+    <div class="button-group">
+      <button type="button" onclick="addControl()">+ Añadir control</button>
+      <button type="button" onclick="descargarPDF()">📄 Descargar PDF</button>
+    </div>
   </form>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    async function descargarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+    const { jsPDF } = window.jspdf;
 
-      const empresa = document.getElementById('empresa').value;
-      const fecha = document.getElementById('fecha').value;
-      const control = document.getElementById('control').value;
-      const cumple = document.getElementById('cumple').value;
-      const evidencia = document.getElementById('evidencia').value;
-      const riesgo = document.getElementById('riesgo').value;
+    const problems = [
+      "Contraseñas débiles o compartidas",
+      "Accesos sin control ni registros",
+      "Ausencia de política de backups",
+      "Actualizaciones de software pendientes",
+      "Logs desactivados o no monitorizados",
+      "Falta de formación del personal",
+      "Antivirus/desprotección obsoleta",
+      "Uso inadecuado de herramientas (Kali, scripts)",
+      "No se gestionan los usuarios inactivos",
+      "Falta de segmentación de red"
+    ];
+
+    const recommendations = [
+      "Aplicar política de contraseñas robustas y únicas",
+      "Implementar control de acceso y registro de auditoría",
+      "Establecer políticas de backup automatizado",
+      "Mantener el software y sistemas actualizados",
+      "Activar y revisar logs periódicamente",
+      "Realizar formaciones de concienciación en ciberseguridad",
+      "Actualizar o sustituir el antivirus/firewall",
+      "Establecer reglas y control sobre el uso de herramientas ofensivas",
+      "Auditar y eliminar usuarios inactivos regularmente",
+      "Segregar la red por VLANs o zonas de confianza"
+    ];
+
+    function addControl() {
+      const container = document.getElementById("controls-container");
+      const block = document.createElement("div");
+      block.className = "control-block";
+
+      const problemOptions = problems.map(p => `<option value="${p}">${p}</option>`).join("");
+      const recommendationOptions = recommendations.map(r => `<option value="${r}">${r}</option>`).join("");
+
+      block.innerHTML = `
+        <button type="button" class="remove-btn" onclick="this.parentNode.remove()">Eliminar</button>
+
+        <label>Control (Ej: PR.AC-1):</label>
+        <input type="text" name="control">
+
+        <label>Cumple:</label>
+        <select name="cumple">
+          <option value="">-- Seleccionar --</option>
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+          <option value="Parcial">Parcial</option>
+        </select>
+
+        <label>Problemática:</label>
+        <select name="problematica">
+          <option value="">-- Seleccionar --</option>
+          ${problemOptions}
+        </select>
+        <input type="text" name="problematica_otro" placeholder="Otra problemática (opcional)">
+
+        <label>Recomendación:</label>
+        <select name="recomendacion">
+          <option value="">-- Seleccionar --</option>
+          ${recommendationOptions}
+        </select>
+        <input type="text" name="recomendacion_otra" placeholder="Otra recomendación (opcional)">
+
+        <label>Evidencia encontrada:</label>
+        <textarea name="evidencia" rows="3"></textarea>
+
+        <label>Riesgo asociado:</label>
+        <select name="riesgo">
+          <option value="">-- Seleccionar --</option>
+          <option value="Alto">Alto</option>
+          <option value="Medio">Medio</option>
+          <option value="Bajo">Bajo</option>
+        </select>
+      `;
+
+      container.appendChild(block);
+    }
+
+    function descargarPDF() {
+      const doc = new jsPDF();
+      const empresa = document.getElementById("empresa").value;
+      const fecha = document.getElementById("fecha").value;
+      const auditor = document.getElementById("auditor").value;
+      const empresa_auditora = document.getElementById("empresa_auditora").value;
+      const version = document.getElementById("version").value;
 
       doc.setFontSize(14);
       doc.text("Informe de Auditoría - NIST CSF", 20, 20);
 
       doc.setFontSize(11);
-      doc.text(`Empresa: ${empresa}`, 20, 40);
-      doc.text(`Fecha: ${fecha}`, 20, 50);
-      doc.text(`Control: ${control}`, 20, 60);
-      doc.text(`Cumple: ${cumple}`, 20, 70);
+      doc.text(`Empresa auditada: ${empresa}`, 20, 30);
+      doc.text(`Fecha de auditoría: ${fecha}`, 20, 37);
+      doc.text(`Auditor: ${auditor}`, 20, 44);
+      doc.text(`Empresa auditora: ${empresa_auditora}`, 20, 51);
+      doc.text(`Versión del informe: ${version}`, 20, 58);
 
-      doc.text("Evidencia:", 20, 85);
-      const splitText = doc.splitTextToSize(evidencia, 170);
-      doc.text(splitText, 20, 95);
+      let y = 70;
+      const blocks = document.querySelectorAll(".control-block");
 
-      doc.text(`Riesgo: ${riesgo}`, 20, 95 + splitText.length * 10);
+      blocks.forEach((block, i) => {
+        if (y > 240) { doc.addPage(); y = 20; }
+        doc.setDrawColor(200);
+        doc.setFillColor(245);
+        doc.rect(15, y - 5, 180, 90, "F");
 
-      doc.save("auditoria_nist.pdf");
+        const control = block.querySelector("input[name='control']").value;
+        const cumple = block.querySelector("select[name='cumple']").value;
+        const problematica = block.querySelector("select[name='problematica']").value || block.querySelector("input[name='problematica_otro']").value;
+        const recomendacion = block.querySelector("select[name='recomendacion']").value || block.querySelector("input[name='recomendacion_otra']").value;
+        const evidencia = block.querySelector("textarea[name='evidencia']").value;
+        const riesgo = block.querySelector("select[name='riesgo']").value;
+
+        doc.setFont(undefined, "bold");
+        doc.text(`CONTROL #${i + 1}: ${control}`, 20, y);
+        doc.setFont(undefined, "normal");
+        doc.text(`Cumple: ${cumple}`, 20, y + 7);
+        doc.text(`Riesgo: ${riesgo}`, 20, y + 14);
+        doc.text("Problemática:", 20, y + 21);
+        doc.text(doc.splitTextToSize(problematica, 170), 25, y + 28);
+        y += 28 + doc.splitTextToSize(problematica, 170).length * 6;
+        doc.text("Recomendación:", 20, y);
+        doc.text(doc.splitTextToSize(recomendacion, 170), 25, y + 7);
+        y += 7 + doc.splitTextToSize(recomendacion, 170).length * 6;
+        doc.text("Evidencia:", 20, y);
+        doc.text(doc.splitTextToSize(evidencia, 170), 25, y + 7);
+        y += 7 + doc.splitTextToSize(evidencia, 170).length * 6 + 10;
+      });
+
+      doc.save("auditoria_nist_completa.pdf");
     }
+
+    window.onload = () => addControl();
   </script>
 </body>
 </html>

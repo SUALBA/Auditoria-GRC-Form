@@ -1,0 +1,24 @@
+Código,Función,Categoría,Descripción
+ID.AM-1,Identify,Asset Management,Inventario de activos físicos y lógicos es mantenido.
+ID.RA-1,Identify,Risk Assessment,Los riesgos a los activos organizacionales se identifican y documentan.
+PR.AC-1,Protect,Access Control,Identidades y credenciales se gestionan para autenticación de usuarios y dispositivos.
+PR.DS-1,Protect,Data Security,Los datos en reposo están protegidos.
+PR.IP-3,Protect,Awareness and Training,El personal recibe capacitación en seguridad.
+DE.CM-1,Detect,Security Continuous Monitoring,La red se monitorea para detectar eventos de seguridad.
+DE.DP-4,Detect,Anomalies and Events,Los eventos de seguridad se analizan para comprender los ataques.
+RS.RP-1,Respond,Response Planning,Se desarrolla y documenta un plan de respuesta a incidentes.
+RS.CO-2,Respond,Communications,Se informa a las partes interesadas apropiadas de los incidentes.
+RC.RP-1,Recover,Recovery Planning,Se implementan planes para restaurar capacidades o servicios afectados.
+
+
+El código PR.AC-1 proviene del marco de ciberseguridad NIST CSF (Cybersecurity Framework), y está estructurado en 5 funciones principales:
+
+ID – Identify (Identificar)
+
+PR – Protect (Proteger)
+
+DE – Detect (Detectar)
+
+RS – Respond (Responder)
+
+RC – Recover (Recuperar)
