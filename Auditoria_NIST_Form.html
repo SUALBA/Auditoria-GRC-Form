@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario Auditoría NIST</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    textarea, select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Formulario de Auditoría - NIST CSF (Ligero)</h1>
+
+  <form id="audit-form">
+    <label for="empresa">Empresa auditada:</label>
+    <input type="text" id="empresa" name="empresa">
+
+    <label for="fecha">Fecha de auditoría:</label>
+    <input type="text" id="fecha" name="fecha">
+
+    <label for="control">Control (Ej: PR.AC-1 - Control de accesos):</label>
+    <input type="text" id="control" name="control">
+
+    <label for="cumple">Cumple:</label>
+    <select id="cumple" name="cumple">
+      <option value="">-- Seleccionar --</option>
+      <option value="Sí">Sí</option>
+      <option value="No">No</option>
+      <option value="Parcial">Parcial</option>
+    </select>
+
+    <label for="evidencia">Evidencia encontrada:</label>
+    <textarea id="evidencia" name="evidencia" rows="4"></textarea>
+
+    <label for="riesgo">Riesgo asociado:</label>
+    <select id="riesgo" name="riesgo">
+      <option value="">-- Seleccionar --</option>
+      <option value="Alto">Alto</option>
+      <option value="Medio">Medio</option>
+      <option value="Bajo">Bajo</option>
+    </select>
+
+    <button type="button" onclick="descargarPDF()">Descargar como PDF</button>
+  </form>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    async function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const empresa = document.getElementById('empresa').value;
+      const fecha = document.getElementById('fecha').value;
+      const control = document.getElementById('control').value;
+      const cumple = document.getElementById('cumple').value;
+      const evidencia = document.getElementById('evidencia').value;
+      const riesgo = document.getElementById('riesgo').value;
+
+      doc.setFontSize(14);
+      doc.text("Informe de Auditoría - NIST CSF", 20, 20);
+
+      doc.setFontSize(11);
+      doc.text(`Empresa: ${empresa}`, 20, 40);
+      doc.text(`Fecha: ${fecha}`, 20, 50);
+      doc.text(`Control: ${control}`, 20, 60);
+      doc.text(`Cumple: ${cumple}`, 20, 70);
+
+      doc.text("Evidencia:", 20, 85);
+      const splitText = doc.splitTextToSize(evidencia, 170);
+      doc.text(splitText, 20, 95);
+
+      doc.text(`Riesgo: ${riesgo}`, 20, 95 + splitText.length * 10);
+
+      doc.save("auditoria_nist.pdf");
+    }
+  </script>
+</body>
+</html>
